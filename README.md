@@ -6,4 +6,3 @@ This program will allow a system to be monitored remotely.
 # Implementation Details
 
 # notes for me:
-
