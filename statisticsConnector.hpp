@@ -7,6 +7,7 @@
 #define STATISTICSCONNECTOR_HPP
     #include <iostream>
     #include <string>
+    #include <vector>
     #include <boost/process.hpp>
     namespace bp = boost::process;
 
