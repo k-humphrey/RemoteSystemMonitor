@@ -9,6 +9,7 @@
     #include <string>
     #include <vector>
     #include <boost/process.hpp>
+    #include <zmq.hpp>
     namespace bp = boost::process;
 
     /*
@@ -26,5 +27,5 @@
         return: an int that describes the length of CONVERTED
         purpose: ?
    */
-  int adapter_vmstat_to_message(std::string, std::string);
+  int adapter_meminfo_to_message(std::string, std::string*);
 #endif

@@ -13,44 +13,54 @@ int main(){
 
 void statistics_connector(){
     //variables for child
-    std::string program = "/usr/bin/vmstat", vmstatOut;
+    std::string program = "/bin/bash", progOut, converted = " ";
     std::vector<std::string> args;
-    args.push_back("-n"); //supress repeated headers
-    args.push_back("1");  //delay is 1 second
+    args.push_back("-c"); 
+    args.push_back("while [ 1 ]; do grep Available /proc/meminfo; sleep 1; done");  
     bp::ipstream child_stdout; //this is the child's output stream
-    
+    int convertedLength;
     try{
-        //create child running vmstat
+        //create child running our command
         bp::child child(bp::exe = program, bp::args = args, bp::std_out > child_stdout);
-        
-        //read from child (2 times to skip headers first)
-        std::getline(child_stdout, vmstatOut);
-        std::getline(child_stdout, vmstatOut);
-        while(std::getline(child_stdout, vmstatOut)) {
-            std::cout << "Parent received: '" << vmstatOut << "'" << std::endl; //debug
-        }
-        
+        //create pub socket and context
+        zmq::context_t ctx(1);   
+        zmq::socket_t pubSocket(ctx, zmq::socket_type::pub);
+        //connect to queue
+        pubSocket.connect("tcp://localhost:5555");
+        //read from child
+        while(std::getline(child_stdout, progOut)) {
 
+            std::cout << "Parent received: '" << progOut<< "'" << std::endl; //debug
+            //send to adapter
+            convertedLength = adapter_meminfo_to_message(progOut, &converted);
+            std::cout << "converted is: '" << converted << "'\n";
+            //send to queue
+            pubSocket.send(zmq::buffer(converted), zmq::send_flags::none);
+        }
         //wait for child
         child.wait();
+        pubSocket.close();
+        ctx.close();
     }catch(const bp::process_error& e){
         std::cerr << "Error spawning process: " << e.what() << std::endl;
         return;
     }
-    // create pub socket and connect to queue
-    //create input and output steam for child
-    //spawn child
-    //read out lines we don't need
-    //for each next line read call adapter
+    //create pub socket and connect to queue
     //call zmq_send to send converted message
     //close the streams
     //wait for child to exit
 }
 
-int adapter_vmstat_to_message(std::string line, std::string converted){
-    //take the line given
-    //extract free mem column
-    //build string message
-    //return length of converted
-    return 0;
+int adapter_meminfo_to_message(std::string line, std::string* converted){
+    //remove extra stuff from line
+    int i = 0;
+    while(!isdigit(line.at(i))){
+        i++;
+    }
+    line = line.substr(i, line.length());
+    //buiild message structure
+    line = "MSG_MEMSTAT," + std::to_string(time(0)) + "," + line;
+    line.push_back('\0');
+    converted->assign(line);
+    return converted->length();
 }
