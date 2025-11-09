@@ -19,8 +19,5 @@ int main(){
 
     zmq::proxy(xsubSocket, xpubSocket);
 
-    xpubSocket.close();
-    xsubSocket.close();
-    ctx.close();
-    return 0;
+
 }
