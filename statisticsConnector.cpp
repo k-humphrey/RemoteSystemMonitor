@@ -26,14 +26,11 @@ void statistics_connector(){
         zmq::context_t ctx(1);   
         zmq::socket_t pubSocket(ctx, zmq::socket_type::pub);
         //connect to queue
-        pubSocket.connect("tcp://localhost:5555");
+        pubSocket.connect("tcp://localhost:5556");
         //read from child
         while(std::getline(child_stdout, progOut)) {
-
-            std::cout << "Parent received: '" << progOut<< "'" << std::endl; //debug
             //send to adapter
             convertedLength = adapter_meminfo_to_message(progOut, &converted);
-            std::cout << "converted is: '" << converted << "'\n";
             //send to queue
             pubSocket.send(zmq::buffer(converted), zmq::send_flags::none);
         }
@@ -45,10 +42,7 @@ void statistics_connector(){
         std::cerr << "Error spawning process: " << e.what() << std::endl;
         return;
     }
-    //create pub socket and connect to queue
-    //call zmq_send to send converted message
-    //close the streams
-    //wait for child to exit
+    return;
 }
 
 int adapter_meminfo_to_message(std::string line, std::string* converted){
@@ -57,7 +51,7 @@ int adapter_meminfo_to_message(std::string line, std::string* converted){
     while(!isdigit(line.at(i))){
         i++;
     }
-    line = line.substr(i, line.length());
+    line = line.substr(i, line.length() - i - 2);
     //buiild message structure
     line = "MSG_MEMSTAT," + std::to_string(time(0)) + "," + line;
     line.push_back('\0');

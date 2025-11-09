@@ -14,9 +14,9 @@
 
     /*
         func: statistics_connector
-        parameters: ?
-        return: ?
-        purpose: ?
+        purpose: Connects to a message forwarding queue via zmq
+                 and spawns a child process to get free memory data to
+                 send to the queue.
     */
    void statistics_connector();
 
@@ -25,7 +25,8 @@
         parameters: LINE- a string of the line to be parsed and wrapped into an appropriate message for Queue
                     CONVERTED - a string that will contain the converted line
         return: an int that describes the length of CONVERTED
-        purpose: ?
+        purpose: Takes an unparsed line from meminfo and structures it into this format
+                 MSG_MEMSTAT,time,freememory 
    */
   int adapter_meminfo_to_message(std::string, std::string*);
 #endif
