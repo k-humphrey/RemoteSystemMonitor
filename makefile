@@ -1,3 +1,4 @@
+all: install-libs clean killall run clean killall
 clean:
 	rm -f statisticsConnector
 	rm -f Queue

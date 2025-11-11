@@ -55,20 +55,21 @@ void monitor_connector(){
 }
 
 int adapter_csv_to_plot(std::string line, std::string* converted){
-    time_t epoch_time;
+    int iTime;
     std::string memstat;
 
+    //parse line into epoch and memstat
     int i = line.find(',');
-    line = line.substr(i + 1, line.length()); //chop off content descriptor
+    line = line.substr(i + 1); //chop off content descriptor. LINE IS NOW: EPOCH,MEMSTAT
     i = line.find(',');
-    epoch_time = atoi(line.substr(0, i).c_str()); //sorry this looks crazy, im just extracting epoch and turning it into an integer.
-    memstat = line.substr(i + 1, line.length());
-    
-    //lets get epoch in the right state
-    struct tm* utc_time = gmtime(&epoch_time);
-    epoch_time = utc_time->tm_hour * 3600 + utc_time->tm_min * 60 + utc_time->tm_sec;
+    memstat = line.substr(0,i); //memstat is epoch time info as a string. MEMSTAT IS NOW: EPOCH(string)
+    time_t epoch_time = static_cast<time_t>(std::stoll(memstat)); // convert string to time_t EPOCH_TIME IS NOW: MEMSTAT (time_t)
+    memstat = line.substr(i + 1, line.length()); //now memstat is the actual free memory string. MEMSTAT IS NOW: MEMSTAT
 
-    line = std::to_string(epoch_time) + " " + memstat; //construct converted
+    //lets get epoch in the right state
+    struct tm* utc_time = gmtime(&epoch_time); //UTC_TIME IS NOW: GMTIME(EPOCH_TIME)
+    iTime = utc_time->tm_hour * 3600 + utc_time->tm_min * 60 + utc_time->tm_sec; //ITIME IS NOW: all seconds in UCT_TIME (int)
+    line = std::to_string(iTime) + " " + memstat; //construct converted
     //converted = epoch [space] mem
     converted->assign(line);
     return converted->size();
