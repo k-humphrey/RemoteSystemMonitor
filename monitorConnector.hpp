@@ -15,7 +15,8 @@
 
     /*
      func: monitor_connector
-     purpose:
+     purpose: connects to a proxy, recieves messages about free memory from the system it is monitoring,
+     and spans gnuplot to plot 20 points in time of memory continutously.
     */
    void monitor_connector();
 

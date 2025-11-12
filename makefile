@@ -1,4 +1,4 @@
-all: install-libs clean killall run clean killall
+all: statisticsConnector Queue monitorConnector
 clean:
 	rm -f statisticsConnector
 	rm -f Queue
@@ -16,8 +16,11 @@ monitorConnector:
 
 
 run: statisticsConnector Queue monitorConnector
+	@echo "Running Queue"
 	./Queue &
+	@echo "running statisticsConnector"
 	./statisticsConnector &
+	@echo "Finally, running monitorConnector, CTRL+Z to exit"
 	./monitorConnector
 
 killall:

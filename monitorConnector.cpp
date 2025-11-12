@@ -30,16 +30,17 @@ void monitor_connector(){
         zmq::message_t message;
         std::string converted;
         int convertedSize;
-        child_stdin << "set term x11\n" << std::endl;
+        child_stdin << "set term x11\n" << std::endl; //put's gnuplot terminal in xll window mode (this lets us spawn gnuplot output in another interactive window)
         while(true){
             result = subSocket.recv(message, zmq::recv_flags::none); //recieve from publisher
             //call adapter
             convertedSize = adapter_csv_to_plot(message.to_string(), &converted);
+            //add to queue
             pointsQueue.push_back(converted);
-            if(pointsQueue.size() > 20){
+            if(pointsQueue.size() > 20){ //limit queue to 20
                 pointsQueue.pop_front();
             }
-            //plot queue
+            //plot queue (and yes this is the entire reason that i used deque instead of queue.)
             child_stdin << "plot '-' with linespoints\n" << std::endl;
             for(const auto& point : pointsQueue){
                 child_stdin << point << "\n" << std::endl; 
@@ -47,7 +48,7 @@ void monitor_connector(){
             child_stdin << "e\n" << std::endl;
         }
     }catch(const bp::process_error& e){
-        std::cerr << "Error spawning process: " << e.what() << std::endl;
+        std::cerr << "Error spawning process: " << e.what() << std::endl; //this function being called 
         return;
     }
     return;
@@ -70,7 +71,7 @@ int adapter_csv_to_plot(std::string line, std::string* converted){
     struct tm* utc_time = gmtime(&epoch_time); //UTC_TIME IS NOW: GMTIME(EPOCH_TIME)
     iTime = utc_time->tm_hour * 3600 + utc_time->tm_min * 60 + utc_time->tm_sec; //ITIME IS NOW: all seconds in UCT_TIME (int)
     line = std::to_string(iTime) + " " + memstat; //construct converted
-    //converted = epoch [space] mem
+    //converted = epoch[space]mem
     converted->assign(line);
     return converted->size();
 }

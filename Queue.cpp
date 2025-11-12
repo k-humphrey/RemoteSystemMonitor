@@ -13,11 +13,10 @@ int main(){
     zmq::socket_t xpubSocket(ctx, zmq::socket_type::xpub);
     zmq::socket_t xsubSocket(ctx, zmq::socket_type::xsub);
 
-    //PUBLISHERS : 5555, SUBSCRIBERS : 5556
+    //PUBLISHERS CONNECT TO : 5556, SUBSCRIBERS CONNECT TO: 5555
     xpubSocket.bind("tcp://*:5555");
     xsubSocket.bind("tcp://*:5556");
 
+    //publishers (xsubSocket) connect, and the message is fowarded to the subscribers (xpubsocket)
     zmq::proxy(xsubSocket, xpubSocket);
-
-
 }
