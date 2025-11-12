@@ -23,10 +23,10 @@
    /*
         func: adapter_vmstat_to_message()
         parameters: LINE- a string of the line to be parsed and wrapped into an appropriate message for Queue
-                    CONVERTED - a string that will contain the converted line
+                    CONVERTED - a string* that will contain the converted line
         return: an int that describes the length of CONVERTED
-        purpose: Takes an unparsed line from meminfo and structures it into this format
-                 MSG_MEMSTAT,time,freememory 
+        purpose: Takes an unparsed line from meminfo and structures it into this string
+                 "MSG_MEMSTAT,time(in epoch),[freememory]"
    */
   int adapter_meminfo_to_message(std::string, std::string*);
 #endif

@@ -12,13 +12,13 @@ int main(){
 }
 
 void statistics_connector(){
-    //variables for child
     std::string program = "/bin/bash", progOut, converted = " ";
     std::vector<std::string> args;
     args.push_back("-c"); 
     args.push_back("while [ 1 ]; do grep Available /proc/meminfo; sleep 1; done");  
     bp::ipstream child_stdout; //this is the child's output stream
     int convertedLength;
+
     try{
         //create child running our command
         bp::child child(bp::exe = program, bp::args = args, bp::std_out > child_stdout);
@@ -46,15 +46,15 @@ void statistics_connector(){
 }
 
 int adapter_meminfo_to_message(std::string line, std::string* converted){
-    //remove extra stuff from line
+    //remove extra stuff from line like "Memavailable 800000 kB"
     int i = 0;
     while(!isdigit(line.at(i))){
         i++;
     }
-    line = line.substr(i, line.length() - i - 2);
+    line = line.substr(i, line.length() - i - 2); //here i don't read 2 characters from the end (kB) LINE IS NOW LIKE: "800000 "
     //buiild message structure
-    line = "MSG_MEMSTAT," + std::to_string(time(0)) + "," + line;
-    line.push_back('\0');
+    line = "MSG_MEMSTAT," + std::to_string(time(0)) + "," + line; //LINE IS NOW LIKE: "MSG_MEMSTAT,1237471823,800000 "
+    line.push_back('\0'); //LINE IS NOW: 0 terminated for sure
     converted->assign(line);
     return converted->length();
 }
